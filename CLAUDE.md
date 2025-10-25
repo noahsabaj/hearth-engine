@@ -1,5 +1,7 @@
 # Hearth Engine - Claude Instructions
 
+Emojis are explicitly forbidden to be used anywhere and at any point in the codebase. Enforce this.
+
 **PURPOSE**: This document contains TIMELESS instructions.
 
 ## ENVIRONMENT SETUP
@@ -39,14 +41,14 @@ The engine provides realistic physics. Players discover what's possible.
 
 ## CRITICAL PHILOSOPHY
 **DATA-ORIENTED PROGRAMMING ONLY** - This codebase follows strict DOP principles:
-- ❌ NO classes, objects, or OOP patterns
-- ❌ NO methods - only functions that transform data
-- ✅ Data lives in shared buffers (WorldBuffer, RenderBuffer, etc.)
-- ✅ Systems are stateless kernels that read/write buffers
-- ✅ GPU-first architecture - data lives where it's processed
-- ✅ If you're writing `self.method()`, you're doing it wrong
+- NO classes, objects, or OOP patterns
+- NO methods - only functions that transform data
+- Data lives in shared buffers (WorldBuffer, RenderBuffer, etc.)
+- Systems are stateless kernels that read/write buffers
+- GPU-first architecture - data lives where it's processed
+- If you're writing `self.method()`, you're doing it wrong
 
-## 🚨 CRITICAL FACTS - NEVER FORGET 🚨
+## CRITICAL FACTS - NEVER FORGET
 
 ### CHUNK SIZE IS 50
 - **The chunk size is 50x50x50 voxels** (5m x 5m x 5m with 10cm voxels)
@@ -61,10 +63,10 @@ The engine provides realistic physics. Players discover what's possible.
 
 ### Constants Usage Pattern
 ```rust
-// ❌ WRONG - Never do this!
+// WRONG - Never do this!
 include!("../../constants.rs");
 
-// ✅ CORRECT - Use proper imports
+// CORRECT - Use proper imports
 use crate::constants::core::CHUNK_SIZE;
 // or for games:
 use crate::constants::world::CHUNK_SIZE;
@@ -172,12 +174,12 @@ Before considering ANY task complete:
 
 ### Data Layout
 ```rust
-// ❌ WRONG - OOP style
+// WRONG - OOP style
 struct Chunk {
     fn generate(&mut self) { } // NO METHODS!
 }
 
-// ✅ CORRECT - DOP style
+// CORRECT - DOP style
 struct ChunkData {
     voxels: Buffer<Voxel>,
     position: ChunkPos,
@@ -212,7 +214,7 @@ fn generate_chunk(data: &mut ChunkData, gen_params: &GenParams) {
 - Test malformed data (proper errors, not panics)
 - Benchmark everything - we need 1000x performance
 
-## 🚨 CRITICAL: CLAIMS VS REALITY PREVENTION 🚨
+## CRITICAL: CLAIMS VS REALITY PREVENTION
 **Hearth Engine Specific**: This project has experienced severe "claims vs reality" gaps where agents report success without verification.
 
 ### Four Root Causes of False Claims (Identified in Sprint 36):
@@ -238,10 +240,10 @@ fn generate_chunk(data: &mut ChunkData, gen_params: &GenParams) {
 - **DOP Conversion**: Verify allocation counts with profiling
 
 ### Language for Hearth Engine:
-- ❌ "Zero unwraps achieved" → ✅ "Targeted unwraps, running rg count..."
-- ❌ "Sprint 36 complete" → ✅ "Sprint 36 changes made, running QA..."
-- ❌ "Player movement fixed" → ✅ "Modified movement code, testing WASD..."
-- ❌ "Engine ready for production" → ✅ "Engine compiles, testing functionality..."
+- "Zero unwraps achieved" → ✅ "Targeted unwraps, running rg count..."
+- "Sprint 36 complete" → ✅ "Sprint 36 changes made, running QA..."
+- "Player movement fixed" → ✅ "Modified movement code, testing WASD..."
+-  "Engine ready for production" → ✅ "Engine compiles, testing functionality..."
 
 **Hearth Engine Principle**: Show, don't tell. Prove, don't claim.
 

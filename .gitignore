@@ -53,3 +53,5 @@ scripts/
 # Local environment files
 .env
 .env.local
+
+CLAUDE.md
