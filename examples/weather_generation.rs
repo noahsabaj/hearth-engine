@@ -1,7 +1,17 @@
 //! Example demonstrating weather integration in terrain generation
+//!
+//! This example shows how weather parameters affect terrain generation
+//! using the GPU-based terrain generator.
 
 use hearth_engine::{
-    gpu::{constants::weather::*, types::terrain::TerrainParams},
+    constants::{
+        blocks::ICE,
+        weather::{
+            INTENSITY_EXTREME, INTENSITY_HEAVY, INTENSITY_LIGHT, INTENSITY_NONE,
+            WEATHER_BLIZZARD, WEATHER_CLEAR, WEATHER_RAIN, WEATHER_SNOW,
+        },
+    },
+    gpu::types::terrain::{BlockDistribution, TerrainParams},
     world::{core::ChunkPos, generation::TerrainGeneratorSOA},
 };
 use std::sync::Arc;
@@ -13,7 +23,7 @@ fn main() {
     println!("Weather-Integrated Terrain Generation Example");
     println!("============================================");
 
-    // Create GPU device and queue (simplified for example)
+    // Create GPU device and queue
     let instance = wgpu::Instance::default();
     let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
         power_preference: wgpu::PowerPreference::HighPerformance,
@@ -24,8 +34,8 @@ fn main() {
     let (device, queue) = pollster::block_on(adapter.request_device(
         &wgpu::DeviceDescriptor {
             label: Some("Weather Example Device"),
-            features: wgpu::Features::empty(),
-            limits: wgpu::Limits::default(),
+            required_features: wgpu::Features::empty(),
+            required_limits: wgpu::Limits::default(),
         },
         None,
     ))
@@ -35,7 +45,8 @@ fn main() {
     let queue = Arc::new(queue);
 
     // Create terrain generator
-    let terrain_gen = TerrainGeneratorSOA::new(device.clone(), queue.clone());
+    let terrain_gen = TerrainGeneratorSOA::new(device.clone(), queue.clone())
+        .expect("Failed to create terrain generator");
 
     // Create weather scenarios
     let scenarios = vec![
@@ -59,7 +70,7 @@ fn main() {
             }
         );
         println!("  Intensity: {}", intensity);
-        println!("  Temperature: {}°C", temperature);
+        println!("  Temperature: {}C", temperature);
 
         // Configure terrain parameters with weather
         let mut params = TerrainParams::default();
@@ -69,8 +80,8 @@ fn main() {
         // Add some custom block distributions based on weather
         if temperature <= 0.0 {
             // Add ice formations at water level
-            params.add_distribution(hearth_engine::gpu::types::terrain::BlockDistribution {
-                block_id: hearth_engine::gpu::constants::ICE as u32,
+            params.add_distribution(BlockDistribution {
+                block_id: ICE as u32,
                 min_height: (params.sea_level as i32) - 2,
                 max_height: params.sea_level as i32,
                 probability: 0.8,

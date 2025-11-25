@@ -1,13 +1,15 @@
 //! Test the unified world module
+//!
+//! This example demonstrates basic usage of the unified world management system.
 
 use hearth_engine::{
-    BlockId, ChunkManagerInterface, ChunkPos, ComputeEngine, GeneratorInterface, UnifiedGenerator,
-    UnifiedStorage, UnifiedWorldConfig, UnifiedWorldManager, VoxelPos,
+    constants::core::CHUNK_SIZE,
+    world::{
+        core::{ChunkPos, VoxelPos},
+        management::{Backend, UnifiedWorldManager, WorldManagerConfig},
+    },
 };
 use std::sync::Arc;
-
-// Import constants properly
-use hearth_engine::constants::*;
 
 fn main() {
     env_logger::init();
@@ -40,7 +42,6 @@ async fn test_unified_world() {
                 label: Some("Test Device"),
                 required_features: wgpu::Features::empty(),
                 required_limits: wgpu::Limits::default(),
-                memory_hints: wgpu::MemoryHints::default(),
             },
             None,
         )
@@ -50,25 +51,25 @@ async fn test_unified_world() {
     let device = Arc::new(device);
     let queue = Arc::new(queue);
 
-    println!("✓ GPU device created");
+    println!("[OK] GPU device created");
 
     // Create world manager with unified architecture
-    let config = UnifiedWorldConfig {
-        chunk_size: core::CHUNK_SIZE,
+    let config = WorldManagerConfig {
+        backend: Backend::Auto,
+        chunk_size: CHUNK_SIZE,
         render_distance: 8,
-        storage_config: Default::default(),
-        generator_config: Default::default(),
+        seed: 42,
     };
 
-    let world_manager = UnifiedWorldManager::new(device.clone(), queue.clone(), config)
+    let mut world_manager = UnifiedWorldManager::new_gpu(device.clone(), queue.clone(), config)
+        .await
         .expect("Failed to create world manager");
 
-    println!("✓ Unified world manager created");
+    println!("[OK] Unified world manager created");
 
-    // Test chunk generation
-    let chunk_pos = ChunkPos { x: 0, y: 0, z: 0 };
-    let has_chunk = world_manager.storage.has_chunk(&chunk_pos);
-    println!("  Has chunk at origin: {}", has_chunk);
+    // Test GPU mode detection
+    let is_gpu = world_manager.is_gpu();
+    println!("  Running in GPU mode: {}", is_gpu);
 
     // Test block operations
     let test_pos = VoxelPos {
@@ -79,30 +80,16 @@ async fn test_unified_world() {
     let block = world_manager.get_block(test_pos);
     println!("  Block at {:?}: {:?}", test_pos, block);
 
-    // Set a block
-    world_manager.set_block(test_pos, BlockId(1)); // Stone
-    let new_block = world_manager.get_block(test_pos);
-    println!("  Block after setting: {:?}", new_block);
+    // Test chunk position conversion
+    let chunk_pos = test_pos.to_chunk_pos(CHUNK_SIZE);
+    println!("  Chunk position for {:?}: {:?}", test_pos, chunk_pos);
 
-    // Test terrain generation
-    let surface_height = world_manager.generator.get_surface_height(0.0, 0.0);
-    println!("  Surface height at (0,0): {}", surface_height);
+    // Test chunk loading
+    let load_result = world_manager.load_chunk(ChunkPos { x: 0, y: 0, z: 0 });
+    match load_result {
+        Ok(()) => println!("  Chunk loaded successfully"),
+        Err(e) => println!("  Chunk load result: {:?}", e),
+    }
 
-    // Test compute engine
-    let compute_engine = ComputeEngine::new(device.clone(), queue.clone(), Default::default())
-        .expect("Failed to create compute engine");
-    println!("✓ Compute engine created");
-
-    // Test chunk manager interface
-    let chunk_manager = ChunkManagerInterface::new(world_manager.storage.clone());
-    let stats = chunk_manager.get_stats();
-    println!("  Loaded chunks: {}", stats.loaded_chunks);
-    println!("  Total memory: {} MB", stats.total_memory_mb);
-
-    // Test generator interface
-    let generator_interface = GeneratorInterface::new(world_manager.generator.clone());
-    let spawn_pos = generator_interface.find_spawn_position(VoxelPos { x: 0, y: 0, z: 0 });
-    println!("  Spawn position: {:?}", spawn_pos);
-
-    println!("\n✅ All unified world tests passed!");
+    println!("\n[OK] All unified world tests completed!");
 }
