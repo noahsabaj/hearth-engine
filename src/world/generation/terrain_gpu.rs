@@ -198,7 +198,7 @@ impl TerrainGeneratorSOA {
 
     /// Create a new SOA terrain generator with its own buffer manager
     pub fn new(device: Arc<wgpu::Device>, queue: Arc<wgpu::Queue>) -> Result<Self, GpuError> {
-        let buffer_manager = Arc::new(GpuBufferManager::new(device.clone(), queue));
+        let buffer_manager = Arc::new(GpuBufferManager::new(device.as_ref(), queue.as_ref()));
         Self::new_with_manager(device, buffer_manager, false)
     }
 

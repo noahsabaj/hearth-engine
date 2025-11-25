@@ -25,7 +25,6 @@ pub mod core;
 pub mod data_types;
 pub mod dop_bridge;
 pub mod error;
-pub mod functional_wrapper;
 pub mod generation;
 pub mod interfaces;
 pub mod lighting;
@@ -91,17 +90,20 @@ pub use management::{
     WorldPerformanceMetrics,
 };
 
-// Re-export interfaces
+// Re-export interfaces (WorldInterface removed - use world_operations instead)
 pub use interfaces::{
     ChunkData, ChunkManager, ChunkManagerInterface, DefaultChunkManager, GeneratorInterface,
     OperationResult, QueryResult, ReadOnlyWorldInterface, UnifiedWorldInterface, WorldConfig,
-    WorldError, WorldInterface, WorldOperation, WorldQuery,
+    WorldError, WorldOperation, WorldQuery,
 };
 
-// Re-export functional wrappers for gradual migration
-pub use functional_wrapper::{
-    get_block, set_block, raycast, is_chunk_loaded, load_chunk, 
-    get_chunks_in_radius, get_chunk_size
+// Re-export DOP world operations as the primary API
+pub use world_operations::{
+    get_block, set_block, raycast, is_chunk_loaded, load_chunk, unload_chunk,
+    get_chunks_in_radius, get_loaded_chunks, WorldModification,
+    voxel_to_chunk, chunk_to_world, get_local_position,
+    get_world_size, get_world_seed, get_world_tick, get_active_chunk_count,
+    set_blocks_batch, get_blocks_batch, log_world_stats, validate_world_data,
 };
 
 // Re-export block system

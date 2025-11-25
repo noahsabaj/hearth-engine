@@ -24,28 +24,33 @@ pub enum BlockFace {
     Bottom, // -Y
     Front,  // +Z
     Back,   // -Z
+    // Cardinal directions (aliases for compatibility)
+    North,  // +Z
+    South,  // -Z
+    East,   // +X
+    West,   // -X
 }
 
 impl BlockFace {
     pub fn normal(&self) -> Vector3<f32> {
         match self {
-            BlockFace::Right => Vector3::new(1.0, 0.0, 0.0),
-            BlockFace::Left => Vector3::new(-1.0, 0.0, 0.0),
+            BlockFace::Right | BlockFace::East => Vector3::new(1.0, 0.0, 0.0),
+            BlockFace::Left | BlockFace::West => Vector3::new(-1.0, 0.0, 0.0),
             BlockFace::Top => Vector3::new(0.0, 1.0, 0.0),
             BlockFace::Bottom => Vector3::new(0.0, -1.0, 0.0),
-            BlockFace::Front => Vector3::new(0.0, 0.0, 1.0),
-            BlockFace::Back => Vector3::new(0.0, 0.0, -1.0),
+            BlockFace::Front | BlockFace::North => Vector3::new(0.0, 0.0, 1.0),
+            BlockFace::Back | BlockFace::South => Vector3::new(0.0, 0.0, -1.0),
         }
     }
 
     pub fn offset(&self) -> Vector3<i32> {
         match self {
-            BlockFace::Right => Vector3::new(1, 0, 0),
-            BlockFace::Left => Vector3::new(-1, 0, 0),
+            BlockFace::Right | BlockFace::East => Vector3::new(1, 0, 0),
+            BlockFace::Left | BlockFace::West => Vector3::new(-1, 0, 0),
             BlockFace::Top => Vector3::new(0, 1, 0),
             BlockFace::Bottom => Vector3::new(0, -1, 0),
-            BlockFace::Front => Vector3::new(0, 0, 1),
-            BlockFace::Back => Vector3::new(0, 0, -1),
+            BlockFace::Front | BlockFace::North => Vector3::new(0, 0, 1),
+            BlockFace::Back | BlockFace::South => Vector3::new(0, 0, -1),
         }
     }
 }
@@ -58,40 +63,7 @@ pub struct RaycastHit {
     pub block: BlockId,
 }
 
-/// Cast a ray through the world and find the first block it hits
-/// This is a basic implementation - specific world implementations may override with optimized versions
-pub fn cast_ray<W: crate::WorldInterface + ?Sized>(
-    world: &W,
-    ray: Ray,
-    max_distance: f32,
-) -> Option<RaycastHit> {
-    let step_size = 0.1;
-    let mut t = 0.0;
-
-    while t <= max_distance {
-        let point = ray.origin + ray.direction * t;
-        let voxel_pos = VoxelPos::new(
-            point.x.floor() as i32,
-            point.y.floor() as i32,
-            point.z.floor() as i32,
-        );
-
-        let block = crate::world::functional_wrapper::get_block(world, voxel_pos);
-        if block != BlockId::AIR {
-            let face = determine_hit_face(point, voxel_pos);
-            return Some(RaycastHit {
-                position: voxel_pos,
-                face,
-                distance: t,
-                block,
-            });
-        }
-
-        t += step_size;
-    }
-
-    None
-}
+// Legacy cast_ray removed - use world_operations::raycast instead
 
 fn determine_hit_face(hit_point: Point3<f32>, voxel_pos: VoxelPos) -> BlockFace {
     // Calculate the local position within the voxel (0-1 range)

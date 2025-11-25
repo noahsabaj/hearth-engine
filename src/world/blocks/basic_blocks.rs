@@ -9,7 +9,13 @@ use crate::world::blocks::block_data::BlockProperties;
 /// Create grass block properties
 pub fn create_grass_properties() -> BlockProperties {
     BlockProperties {
-        name: "grass",
+        id: BlockId::GRASS,
+        name: "grass".to_string(),
+        is_solid: true,
+        is_transparent: false,
+        transparent: false,
+        light_emission: 0,
+        physics_enabled: true,
         render_data: RenderData {
             color: [0.3, 0.8, 0.2], // Green grass color
             texture_id: 1,
@@ -19,7 +25,6 @@ pub fn create_grass_properties() -> BlockProperties {
             solid: true,
             density: 1500.0, // kg/m³
         },
-        transparent: false,
         hardness: 0.6, // Quick to break
         flammable: false,
         blast_resistance: 3.0,
@@ -29,7 +34,13 @@ pub fn create_grass_properties() -> BlockProperties {
 /// Create dirt block properties
 pub fn create_dirt_properties() -> BlockProperties {
     BlockProperties {
-        name: "dirt",
+        id: BlockId::DIRT,
+        name: "dirt".to_string(),
+        is_solid: true,
+        is_transparent: false,
+        transparent: false,
+        light_emission: 0,
+        physics_enabled: true,
         render_data: RenderData {
             color: [0.5, 0.3, 0.1], // Brown dirt color
             texture_id: 2,
@@ -39,7 +50,6 @@ pub fn create_dirt_properties() -> BlockProperties {
             solid: true,
             density: 1600.0,
         },
-        transparent: false,
         hardness: 0.5,
         flammable: false,
         blast_resistance: 2.5,
@@ -49,7 +59,13 @@ pub fn create_dirt_properties() -> BlockProperties {
 /// Create stone block properties
 pub fn create_stone_properties() -> BlockProperties {
     BlockProperties {
-        name: "stone",
+        id: BlockId::STONE,
+        name: "stone".to_string(),
+        is_solid: true,
+        is_transparent: false,
+        transparent: false,
+        light_emission: 0,
+        physics_enabled: true,
         render_data: RenderData {
             color: [0.5, 0.5, 0.5], // Gray stone color
             texture_id: 3,
@@ -59,7 +75,6 @@ pub fn create_stone_properties() -> BlockProperties {
             solid: true,
             density: 2500.0,
         },
-        transparent: false,
         hardness: 1.5, // Harder to break
         flammable: false,
         blast_resistance: 30.0,
@@ -69,7 +84,13 @@ pub fn create_stone_properties() -> BlockProperties {
 /// Create water block properties
 pub fn create_water_properties() -> BlockProperties {
     BlockProperties {
-        name: "water",
+        id: BlockId::WATER,
+        name: "water".to_string(),
+        is_solid: false,
+        is_transparent: true,
+        transparent: true,
+        light_emission: 0,
+        physics_enabled: true,
         render_data: RenderData {
             color: [0.2, 0.3, 0.8], // Blue water color
             texture_id: 4,
@@ -79,7 +100,6 @@ pub fn create_water_properties() -> BlockProperties {
             solid: false,
             density: 1000.0,
         },
-        transparent: true, // Water is transparent
         hardness: 100.0, // Can't break water
         flammable: false,
         blast_resistance: 500.0,
@@ -89,7 +109,13 @@ pub fn create_water_properties() -> BlockProperties {
 /// Create sand block properties
 pub fn create_sand_properties() -> BlockProperties {
     BlockProperties {
-        name: "sand",
+        id: BlockId::SAND,
+        name: "sand".to_string(),
+        is_solid: true,
+        is_transparent: false,
+        transparent: false,
+        light_emission: 0,
+        physics_enabled: true,
         render_data: RenderData {
             color: [0.9, 0.8, 0.6], // Sandy color
             texture_id: 5,
@@ -99,7 +125,6 @@ pub fn create_sand_properties() -> BlockProperties {
             solid: true,
             density: 1800.0,
         },
-        transparent: false,
         hardness: 0.5,
         flammable: false,
         blast_resistance: 2.5,
@@ -109,7 +134,13 @@ pub fn create_sand_properties() -> BlockProperties {
 /// Create glowstone block properties
 pub fn create_glowstone_properties() -> BlockProperties {
     BlockProperties {
-        name: "glowstone",
+        id: BlockId::GLOWSTONE,
+        name: "glowstone".to_string(),
+        is_solid: true,
+        is_transparent: false,
+        transparent: false,
+        light_emission: 15,
+        physics_enabled: true,
         render_data: RenderData {
             color: [1.0, 0.9, 0.6], // Bright yellow color
             texture_id: 6,
@@ -119,7 +150,6 @@ pub fn create_glowstone_properties() -> BlockProperties {
             solid: true,
             density: 2000.0,
         },
-        transparent: false,
         hardness: 0.8,
         flammable: false,
         blast_resistance: 4.0,

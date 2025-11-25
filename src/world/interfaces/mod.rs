@@ -2,11 +2,16 @@
 //!
 //! This module provides abstract interfaces that work across both GPU and CPU
 //! implementations, allowing for seamless switching between backends.
+//!
+//! NOTE: WorldInterface trait is deprecated - use world_operations DOP functions instead.
 
+#[allow(deprecated)]
 mod generator_interface;
+#[allow(deprecated)]
 mod world_interface;
 
 pub use generator_interface::{GenerationRequest, GenerationResult, GeneratorInterface};
+#[allow(deprecated)]
 pub use world_interface::{
     ChunkData, ChunkManager, DefaultChunkManager, OperationResult, QueryResult,
     ReadOnlyWorldInterface, UnifiedWorldInterface, WorldConfig, WorldError, WorldInterface,
@@ -71,6 +76,8 @@ pub struct InterfaceFactory;
 
 impl InterfaceFactory {
     /// Create a world interface from a unified world manager
+    /// DEPRECATED: Use world_operations DOP functions instead
+    #[allow(deprecated)]
     pub fn create_world_interface(
         manager: std::sync::Arc<std::sync::Mutex<crate::world::management::UnifiedWorldManager>>,
     ) -> Box<dyn WorldInterface> {

@@ -3,8 +3,7 @@ use crate::world::core::ChunkPos;
 use bytemuck::{Pod, Zeroable};
 use cgmath::{Point3, Vector3};
 /// Bounding Volume Hierarchy for Ray Tracing Support
-///
-/// Sprint 34: Acceleration structure for future ray traced voxel rendering
+
 use std::sync::Arc;
 use wgpu::{Buffer, Device, Queue};
 

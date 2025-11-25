@@ -34,7 +34,7 @@ impl BlockRegistry {
         
         // Register built-in blocks from the static table
         for (id, properties) in BLOCK_PROPERTIES {
-            registry.blocks.insert(*id, *properties);
+            registry.blocks.insert(id, properties);
         }
         
         registry
@@ -71,9 +71,9 @@ impl BlockRegistry {
             id
         };
 
-        self.blocks.insert(id, properties);
+        self.blocks.insert(id, properties.clone());
         self.name_to_id.insert(name.to_string(), id);
-        
+
         self.registrations.push(BlockRegistration {
             id,
             name: name.to_string(),

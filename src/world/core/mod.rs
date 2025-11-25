@@ -10,5 +10,5 @@ mod registry;
 
 pub use block::{BlockId, PhysicsProperties, RenderData};
 pub use position::{ChunkPos, VoxelPos};
-pub use ray::{cast_ray, BlockFace, Ray, RaycastHit};
+pub use ray::{BlockFace, Ray, RaycastHit};
 pub use registry::{BlockRegistry, BlockRegistration};

@@ -5,8 +5,7 @@ use crate::world::error::WorldGpuResult;
 use crate::world::storage::WorldBuffer;
 use bytemuck::{Pod, Zeroable};
 /// Hierarchical Physics Queries
-///
-/// Sprint 34: GPU-accelerated physics using hierarchical structures
+
 use std::sync::Arc;
 use wgpu::{Buffer, ComputePipeline, Device, Queue};
 

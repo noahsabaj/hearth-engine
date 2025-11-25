@@ -3,8 +3,7 @@ use crate::world::core::ChunkPos;
 use crate::world::storage::WorldBuffer;
 use bytemuck::{Pod, Zeroable};
 /// Sparse Voxel Octree for Empty Space Skipping
-///
-/// Sprint 34: Hierarchical acceleration structure for the unified kernel
+
 use std::sync::Arc;
 use wgpu::{Buffer, Device, Queue};
 

@@ -82,7 +82,7 @@ impl UnifiedGenerator {
         let gpu_generator = super::GpuWorldGenerator::new(
             std::sync::Arc::new(terrain_generator),
             device.clone(),
-            buffer_manager.queue().clone(),
+            buffer_manager.queue(),
             world_buffer,
         );
 

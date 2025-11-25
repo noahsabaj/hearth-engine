@@ -7,6 +7,9 @@ mod gpu_chunks;
 mod temp_chunk;
 mod world_buffer;
 
+// Type alias for compatibility
+pub use crate::world::data_types::ChunkData as Chunk;
+
 // GPU-first storage (primary)
 pub use world_buffer::{VoxelData, WorldBuffer, WorldBufferDescriptor};
 

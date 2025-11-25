@@ -268,8 +268,20 @@ impl WorldBuffer {
     pub fn get_chunk_slot(&mut self, chunk_pos: ChunkPos) -> u32 {
         log::debug!("[WORLD_BUFFER::get_chunk_slot] Called for chunk {:?}", chunk_pos);
         // Lock both mutexes to ensure thread safety
-        let mut chunk_slots = self.chunk_slots.lock().unwrap();
-        let mut next_slot = self.next_slot.lock().unwrap();
+        let mut chunk_slots = match self.chunk_slots.lock() {
+            Ok(guard) => guard,
+            Err(poisoned) => {
+                log::warn!("[WORLD_BUFFER] chunk_slots mutex was poisoned, recovering");
+                poisoned.into_inner()
+            }
+        };
+        let mut next_slot = match self.next_slot.lock() {
+            Ok(guard) => guard,
+            Err(poisoned) => {
+                log::warn!("[WORLD_BUFFER] next_slot mutex was poisoned, recovering");
+                poisoned.into_inner()
+            }
+        };
         
         if let Some(&slot) = chunk_slots.get(&chunk_pos) {
             log::debug!(

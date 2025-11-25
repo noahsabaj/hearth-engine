@@ -3,7 +3,6 @@ use crate::world::core::ChunkPos;
 use bytemuck::{Pod, Zeroable};
 /// Unified World Kernel
 ///
-/// Sprint 34: The ultimate expression of data-oriented design.
 /// A single GPU kernel that updates the entire world in one dispatch.
 ///
 /// This kernel merges:
@@ -57,7 +56,8 @@ impl Default for UnifiedKernelConfig {
 }
 
 /// System flags for the unified kernel
-pub mod SystemFlags {
+#[allow(non_snake_case)]
+pub mod system_flags {
     pub const TERRAIN_GEN: u32 = 1 << 0;
     pub const LIGHTING: u32 = 1 << 1;
     pub const PHYSICS: u32 = 1 << 2;
@@ -68,6 +68,9 @@ pub mod SystemFlags {
     pub const WEATHER: u32 = 1 << 7;
     pub const ALL: u32 = 0xFF;
 }
+
+// Re-export for backwards compatibility
+pub use system_flags as SystemFlags;
 
 /// Work graph node for GPU-side scheduling
 #[repr(C)]
@@ -370,12 +373,7 @@ fn unified_world_update(@builtin(global_invocation_id) global_id: vec3<u32>) {
     ) {
         // Record performance metrics
         let _measurement = self.metrics.as_ref().map(|m| {
-            m.start_measurement(
-                MetricType::FrameTime,
-                Implementation::Gpu,
-                workgroup_count as u64,
-                "Unified kernel dispatch",
-            )
+            m.start_measurement("Unified kernel dispatch")
         });
 
         // Update configuration

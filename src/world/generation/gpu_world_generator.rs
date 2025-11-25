@@ -59,7 +59,13 @@ impl GpuWorldGenerator {
 
         // Execute terrain generation with error recovery
         let result = self.error_recovery.execute_with_recovery(|| {
-            let mut world_buffer = self.world_buffer.lock().unwrap();
+            let mut world_buffer = match self.world_buffer.lock() {
+                Ok(guard) => guard,
+                Err(poisoned) => {
+                    log::warn!("[GpuWorldGenerator] world_buffer mutex was poisoned, recovering");
+                    poisoned.into_inner()
+                }
+            };
             self.terrain_generator
                 .generate_chunks(&mut world_buffer, chunk_positions, encoder)
                 .map_err(|gpu_err| GpuRecoveryError::OperationFailed {

@@ -37,3 +37,16 @@ pub type WorldGpuResult<T> = WorldResult<T>;
 pub trait WorldGpuErrorContext<T>: WorldErrorContext<T> {}
 impl<T> WorldGpuErrorContext<T> for Option<T> {}
 impl<T, E> WorldGpuErrorContext<T> for Result<T, E> where E: std::fmt::Display {}
+
+// WorldError for DOP operations
+#[derive(Debug, thiserror::Error)]
+pub enum WorldError {
+    #[error("Chunk not loaded")]
+    ChunkNotLoaded,
+
+    #[error("Invalid position")]
+    InvalidPosition,
+
+    #[error("Operation failed: {0}")]
+    OperationFailed(String),
+}

@@ -1,6 +1,6 @@
 use crate::constants::core::VOXELS_PER_CHUNK;
 use crate::world::core::ChunkPos;
-use crate::world::storage::TempChunk;
+use crate::world::storage::{Chunk, TempChunk};
 use wgpu::util::DeviceExt;
 
 /// GPU-resident chunk data for efficient GPU processing
@@ -62,7 +62,54 @@ impl GpuChunk {
         });
 
         Self {
-            position: chunk.position(),
+            position: chunk.position().clone(),
+            size,
+            block_buffer,
+            light_buffer,
+            metadata_buffer,
+            bind_group: None,
+            dirty: false,
+        }
+    }
+
+    /// Create a new GPU chunk from ChunkData
+    pub fn new_from_chunk(device: &wgpu::Device, chunk: &Chunk) -> Self {
+        let blocks = chunk.blocks();
+        let block_count = blocks.len();
+        let size = (block_count as f64).cbrt() as u32; // Derive size from block count
+
+        // Create block buffer
+        let block_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("GPU Chunk Block Buffer"),
+            contents: bytemuck::cast_slice(blocks),
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
+        });
+
+        // Create light buffer (placeholder for now)
+        let light_data = vec![0u8; block_count * 2]; // 2 bytes per block for light
+        let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("GPU Chunk Light Buffer"),
+            contents: &light_data,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
+        });
+
+        // Create metadata buffer
+        let pos = chunk.position();
+        let metadata = ChunkMetadata {
+            position: [pos.x, pos.y, pos.z, 0], // xyz + padding for alignment
+            size,
+            block_count: block_count as u32,
+            flags: 0,
+            _padding: 0,
+        };
+        let metadata_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("GPU Chunk Metadata Buffer"),
+            contents: bytemuck::bytes_of(&metadata),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
+
+        Self {
+            position: pos,
             size,
             block_buffer,
             light_buffer,
@@ -199,7 +246,7 @@ impl GpuChunkManager {
             gpu_chunk.update(queue, chunk);
         } else {
             // Create new GPU chunk
-            let mut gpu_chunk = GpuChunk::new(device, chunk);
+            let mut gpu_chunk = GpuChunk::new_from_chunk(device, chunk);
             gpu_chunk.create_bind_group(device, &self.bind_group_layout);
             self.chunks.insert(pos, gpu_chunk);
         }
