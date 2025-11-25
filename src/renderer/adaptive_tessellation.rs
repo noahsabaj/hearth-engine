@@ -2,7 +2,6 @@
 /// 
 /// Dynamically adjusts mesh density based on surface curvature and
 /// screen space error for optimal quality/performance tradeoff.
-/// Part of Sprint 29: Mesh Optimization & Advanced LOD
 
 use cgmath::{Vector3, Vector2};
 use crate::sdf::SdfBuffer;

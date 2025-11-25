@@ -1,7 +1,6 @@
 use crate::{BlockId, ChunkPos, VoxelPos};
 use parking_lot::RwLock;
 use std::collections::{HashMap, VecDeque};
-/// Zero-allocation object pools for Sprint 37
 /// Pre-allocated pools to replace runtime Vec::new(), HashMap::new() allocations
 use std::sync::Arc;
 

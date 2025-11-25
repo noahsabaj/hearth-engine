@@ -4,7 +4,6 @@ use cgmath::{Matrix4, Vector3, Vector4};
 /// GPU-Driven Culling System
 ///
 /// Manages frustum and occlusion culling entirely on GPU.
-/// Part of Sprint 28: GPU-Driven Rendering Optimization
 use wgpu::{Buffer, Device, Queue};
 
 pub mod frustum_culler;
@@ -166,7 +165,7 @@ impl GpuCullingSystem {
         chunk_instances: &Buffer,
         chunk_count: u32,
         depth_texture: &wgpu::TextureView,
-    ) -> &Buffer {
+    ) -> Option<&Buffer> {
         // Step 1: Build HZB from depth buffer
         self.hzb.build(encoder, depth_texture);
 
@@ -218,10 +217,8 @@ impl GpuCullingSystem {
         receiver
             .recv_async()
             .await
-            .map_err(|_| buffer_mapping_error("culling stats"))
-            .renderer_context("recv_async")?
-            .map_err(|_| buffer_mapping_error("culling stats"))
-            .renderer_context("map_async")?;
+            .map_err(|_| buffer_mapping_error("culling stats recv_async"))?
+            .map_err(|_| buffer_mapping_error("culling stats map_async"))?;
 
         let data = buffer_slice.get_mapped_range();
         let stats = bytemuck::from_bytes::<CullingStats>(&data).clone();

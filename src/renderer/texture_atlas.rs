@@ -2,7 +2,6 @@
 /// 
 /// Manages material textures in a single atlas for efficient rendering.
 /// Supports dynamic packing and UV coordinate generation.
-/// Part of Sprint 29: Mesh Optimization & Advanced LOD
 
 use wgpu::{Device, Queue, Texture, TextureView, Sampler};
 use image::{DynamicImage, RgbaImage};

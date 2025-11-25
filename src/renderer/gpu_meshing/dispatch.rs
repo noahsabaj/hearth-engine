@@ -39,7 +39,15 @@ pub fn generate_chunk_meshes(
     let mut allocated_indices = Vec::new();
     let mut requests = Vec::new();
 
-    let mut allocator = state.allocator.lock().unwrap();
+    let allocator = match state.allocator.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => {
+            log::warn!("[GPU Meshing] Allocator mutex was poisoned in generate_chunk_meshes, recovering");
+            poisoned.into_inner()
+        }
+    };
+    // Note: allocator is not mutated, only read
+    let _ = &allocator; // Suppress unused warning if needed
 
     for chunk_pos in chunks {
         // For GPU-driven rendering, all chunks use buffer 0
@@ -182,7 +190,13 @@ pub fn get_mesh_buffer<'a>(
 
 /// Free a mesh buffer when a chunk is unloaded
 pub fn free_mesh_buffer(state: &GpuMeshingState, chunk_pos: &ChunkPos) {
-    let mut allocator = state.allocator.lock().unwrap();
+    let mut allocator = match state.allocator.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => {
+            log::warn!("[GPU Meshing] Allocator mutex was poisoned in free_mesh_buffer, recovering");
+            poisoned.into_inner()
+        }
+    };
     if let Some(buffer_index) = allocator.allocated_buffers.remove(chunk_pos) {
         allocator.free_buffers.push(buffer_index);
         allocator.free_buffers.sort(); // Keep in order
@@ -191,7 +205,13 @@ pub fn free_mesh_buffer(state: &GpuMeshingState, chunk_pos: &ChunkPos) {
 
 /// Clear mesh buffer pool
 pub fn clear_mesh_buffers(state: &GpuMeshingState) {
-    let mut allocator = state.allocator.lock().unwrap();
+    let mut allocator = match state.allocator.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => {
+            log::warn!("[GPU Meshing] Allocator mutex was poisoned in clear_mesh_buffers, recovering");
+            poisoned.into_inner()
+        }
+    };
     // Return all allocated buffers to the free pool
     let buffer_indices: Vec<u32> = allocator
         .allocated_buffers

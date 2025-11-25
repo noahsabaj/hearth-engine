@@ -3,7 +3,7 @@ use crate::renderer::{MeshLod, Vertex};
 ///
 /// Handles smooth transitions between LOD levels using geomorphing
 /// and temporal blending to avoid popping artifacts.
-/// Part of Sprint 29: Mesh Optimization & Advanced LOD
+
 use cgmath::{InnerSpace, Vector3, Zero};
 use std::collections::HashMap;
 

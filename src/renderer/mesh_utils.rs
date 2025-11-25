@@ -3,7 +3,7 @@
 
 use crate::renderer::vertex::Vertex;
 use crate::world::core::{BlockId, ChunkPos, VoxelPos};
-use crate::world::{functional_wrapper, interfaces::WorldInterface};
+use crate::world::{world_operations, data_types::WorldData};
 
 /// Generate vertices for a simple unit cube
 /// Returns 24 vertices (6 faces * 4 vertices per face)
@@ -44,10 +44,10 @@ pub fn create_simple_cube_vertices() -> Vec<Vertex> {
         for &idx in indices {
             vertices.push(Vertex {
                 position: positions[idx],
-                color: *color,
+                color: [color[0], color[1], color[2], 1.0], // Add alpha channel
                 normal: *normal,
-                light: 1.0,
-                ao: 1.0,
+                light: 15u8, // Max light level
+                ao: 3u8,     // Max ambient occlusion
             });
         }
     }
@@ -91,7 +91,7 @@ pub fn create_colored_cube_at(
         vertex.position[0] = vertex.position[0] * size + position[0];
         vertex.position[1] = vertex.position[1] * size + position[1];
         vertex.position[2] = vertex.position[2] * size + position[2];
-        vertex.color = color;
+        vertex.color = [color[0], color[1], color[2], 1.0]; // Add alpha channel
     }
 
     let indices = create_simple_cube_indices();
@@ -99,8 +99,9 @@ pub fn create_colored_cube_at(
 }
 
 /// Generate terrain mesh for a chunk based on actual voxel data
-pub fn generate_chunk_terrain_mesh<W: WorldInterface>(
-    world: &W,
+/// Pure DOP function - takes WorldData directly
+pub fn generate_chunk_terrain_mesh(
+    world: &WorldData,
     chunk_pos: ChunkPos,
     chunk_size: u32,
 ) -> (Vec<Vertex>, Vec<u32>) {
@@ -130,7 +131,7 @@ pub fn generate_chunk_terrain_mesh<W: WorldInterface>(
                 );
 
                 // Get the block at this position
-                let block = functional_wrapper::get_block(world, world_pos);
+                let block = world_operations::get_block(world, world_pos, chunk_size);
                 total_blocks += 1;
 
                 // Track block types for debugging
@@ -183,29 +184,29 @@ pub fn generate_chunk_terrain_mesh<W: WorldInterface>(
 
                     // Enhanced face culling with chunk boundary handling
                     let should_render_face = {
-                        let neighbor_block = functional_wrapper::get_block(world, neighbor_pos);
-                        
+                        let neighbor_block = world_operations::get_block(world, neighbor_pos, chunk_size);
+
                         // Check if neighbor is at chunk boundary
                         let neighbor_chunk_x = neighbor_pos.x.div_euclid(chunk_size as i32);
-                        let neighbor_chunk_y = neighbor_pos.y.div_euclid(chunk_size as i32); 
+                        let neighbor_chunk_y = neighbor_pos.y.div_euclid(chunk_size as i32);
                         let neighbor_chunk_z = neighbor_pos.z.div_euclid(chunk_size as i32);
-                        
+
                         let neighbor_chunk_pos = ChunkPos::new(neighbor_chunk_x, neighbor_chunk_y, neighbor_chunk_z);
-                        
+
                         // If neighbor is in a different chunk, check if that chunk is loaded
                         if neighbor_chunk_pos != chunk_pos {
                             // If neighbor chunk isn't loaded, assume it's AIR (DO render face)
                             // This ensures surface faces are visible until neighbor chunks load
-                            if !world.is_chunk_loaded(neighbor_chunk_pos) {
+                            if !world_operations::is_chunk_loaded(world, neighbor_chunk_pos) {
                                 true // Render face - assume neighbor is AIR until loaded
                             } else {
                                 // Neighbor chunk is loaded, check the actual block
-                                neighbor_block == BlockId::AIR || 
+                                neighbor_block == BlockId::AIR ||
                                 (neighbor_block == BlockId::WATER && block != BlockId::WATER)
                             }
                         } else {
                             // Same chunk - use normal transparency check
-                            neighbor_block == BlockId::AIR || 
+                            neighbor_block == BlockId::AIR ||
                             (neighbor_block == BlockId::WATER && block != BlockId::WATER)
                         }
                     };
@@ -256,7 +257,7 @@ pub fn generate_chunk_terrain_mesh<W: WorldInterface>(
             chunk_pos.y * chunk_size as i32 + chunk_size as i32 / 2,
             chunk_pos.z * chunk_size as i32 + chunk_size as i32 / 2,
         );
-        let center_block = functional_wrapper::get_block(world, center_pos);
+        let center_block = world_operations::get_block(world, center_pos, chunk_size);
         log::debug!(
             "[generate_chunk_terrain_mesh] Chunk {:?} is empty. Center block at {:?} is {:?}",
             chunk_pos,
@@ -330,12 +331,15 @@ fn create_face_vertices(
     for pos in face_vertices.iter() {
         vertices.push(Vertex {
             position: *pos,
-            color,
+            color: [color[0], color[1], color[2], 1.0], // Add alpha channel
             normal,
-            light: 1.0,
-            ao: 1.0,
+            light: 15u8, // Max light level
+            ao: 3u8,     // Max ambient occlusion
         });
     }
 
     (vertices, vec![0, 1, 2, 0, 2, 3])
 }
+
+pub struct MeshUtils;
+
