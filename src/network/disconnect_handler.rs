@@ -24,6 +24,15 @@ pub enum ConnectionState {
     SaveComplete,
 }
 
+/// Reason for player disconnection
+#[derive(Debug, Clone, PartialEq)]
+pub enum DisconnectReason {
+    ClientQuit,
+    Timeout,
+    Kicked,
+    Error,
+}
+
 /// Information about a disconnecting player
 #[derive(Debug, Clone)]
 pub struct DisconnectingPlayer {
@@ -206,15 +215,25 @@ impl DisconnectHandler {
 
         // Queue player data save with critical priority
         crate::persistence::queue_operation(&self.save_data, SaveOperation::Player {
+            player_id: 0, // TODO: Get actual player ID
             uuid: player_uuid.clone(),
+            position: [player_position.0 as f32, player_position.1 as f32, player_position.2 as f32],
             priority: SavePriority::Critical,
         })?;
 
         // Queue chunk saves with critical priority
         if !chunks_to_save.is_empty() {
+            let positions: Vec<(i32, i32, i32)> = chunks_to_save.iter()
+                .map(|pos| (pos.x, pos.y, pos.z))
+                .collect();
+            let chunks: Vec<u64> = chunks_to_save.iter()
+                .map(|pos| ((pos.x as u64) << 42) | ((pos.y as u64) << 21) | (pos.z as u64))
+                .collect();
+
             self.save_data
                 .queue_operation(SaveOperation::ChunkBatch {
-                    positions: chunks_to_save.into_iter().collect(),
+                    chunks,
+                    positions,
                     priority: SavePriority::Critical,
                 })?;
         }
@@ -301,15 +320,25 @@ impl DisconnectHandler {
     ) -> PersistenceResult<()> {
         // Queue player data save
         crate::persistence::queue_operation(&self.save_data, SaveOperation::Player {
+            player_id: 0, // TODO: Get actual player ID
             uuid: player.uuid.clone(),
+            position: [player.position.0 as f32, player.position.1 as f32, player.position.2 as f32],
             priority: SavePriority::Critical,
         })?;
 
         // Queue chunk saves if any
         if !player.chunks_to_save.is_empty() {
+            let positions: Vec<(i32, i32, i32)> = player.chunks_to_save.iter()
+                .map(|pos| (pos.x, pos.y, pos.z))
+                .collect();
+            let chunks: Vec<u64> = player.chunks_to_save.iter()
+                .map(|pos| ((pos.x as u64) << 42) | ((pos.y as u64) << 21) | (pos.z as u64))
+                .collect();
+
             self.save_data
                 .queue_operation(SaveOperation::ChunkBatch {
-                    positions: player.chunks_to_save.iter().cloned().collect(),
+                    chunks,
+                    positions,
                     priority: SavePriority::Critical,
                 })?;
         }
