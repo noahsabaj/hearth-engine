@@ -2,7 +2,6 @@
 /// 
 /// Generates optimized meshes directly on GPU using greedy algorithm.
 /// Outputs vertex and index buffers ready for rendering.
-/// Part of Sprint 29: Mesh Optimization & Advanced LOD
 
 struct ChunkData {
     voxels: array<u32, 32768>, // 32^3 packed voxels

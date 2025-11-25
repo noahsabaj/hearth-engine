@@ -2,8 +2,6 @@
 /// 
 /// Performs GPU occlusion culling using a hierarchical depth buffer.
 /// Works in tandem with frustum culling for maximum efficiency.
-///
-/// Sprint 28: GPU-Driven Rendering Optimization
 
 struct ChunkInstance {
     world_position: vec3<f32>,

@@ -2,8 +2,6 @@
 /// 
 /// Performs frustum culling entirely on GPU with zero CPU involvement.
 /// Writes visibility results and indirect draw commands directly.
-///
-/// Sprint 28: GPU-Driven Rendering Optimization
 
 struct Camera {
     view_proj: mat4x4<f32>,

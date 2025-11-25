@@ -2,7 +2,6 @@
 /// 
 /// Selects appropriate LOD level based on screen size and distance.
 /// Updates instance data with selected LOD for rendering.
-/// Part of Sprint 28: GPU-Driven Rendering Optimization
 
 struct Camera {
     view_proj: mat4x4<f32>,
