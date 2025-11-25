@@ -40,9 +40,6 @@ impl GpuErrorRecovery {
                 wgpu::Error::Validation { description, .. } => {
                     log::error!("[GPU Error Recovery] GPU validation error: {}", description);
                 }
-                _ => {
-                    log::error!("[GPU Error Recovery] Unknown GPU error");
-                }
             }
         }));
 
@@ -144,7 +141,7 @@ impl GpuErrorRecovery {
     }
 
     /// Create a safe command encoder wrapper
-    pub fn create_safe_encoder(&self, desc: &wgpu::CommandEncoderDescriptor) -> SafeCommandEncoder {
+    pub fn create_safe_encoder(&self, desc: &wgpu::CommandEncoderDescriptor) -> SafeCommandEncoder<'_> {
         SafeCommandEncoder {
             encoder: self.device.create_command_encoder(desc),
             recovery: self,

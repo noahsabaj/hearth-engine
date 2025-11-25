@@ -103,11 +103,11 @@ impl<'a, T: SoaCompatible> ExactSizeIterator for SoaIterator<'a, T> {}
 /// Extension trait for SOA data iteration
 pub trait SoaIterExt<T: SoaCompatible> {
     /// Iterate over items in SOA data
-    fn iter_soa(&self) -> SoaIterator<T>;
+    fn iter_soa(&self) -> SoaIterator<'_, T>;
 }
 
 impl<T: SoaCompatible> SoaIterExt<T> for T::Arrays {
-    fn iter_soa(&self) -> SoaIterator<T> {
+    fn iter_soa(&self) -> SoaIterator<'_, T> {
         SoaIterator::new(self)
     }
 }

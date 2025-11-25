@@ -402,11 +402,12 @@ impl UnifiedGpuSystem {
                         || wgsl.contains(&format!("array<{}", other_info.wgsl_name))
                     {
                         // type_name depends on other_name
-                        dependencies
-                            .get_mut(other_name)
-                            .unwrap()
-                            .push(type_name.clone());
-                        *in_degree.get_mut(type_name).unwrap() += 1;
+                        if let Some(deps) = dependencies.get_mut(other_name) {
+                            deps.push(type_name.clone());
+                        }
+                        if let Some(degree) = in_degree.get_mut(type_name) {
+                            *degree += 1;
+                        }
                     }
                 }
             }

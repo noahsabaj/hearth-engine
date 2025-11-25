@@ -10,7 +10,7 @@ use wgpu::{
     BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType, ShaderStages,
 };
 
-/// Global binding registry for automatic binding management
+// Global binding registry for automatic binding management
 lazy_static! {
     static ref BINDING_REGISTRY: Mutex<BindingRegistry> = Mutex::new(BindingRegistry::new());
 }
