@@ -4,7 +4,6 @@
 /// - camera_data.rs: Pure data structures with NO methods
 /// - camera_operations.rs: Pure functions that operate on data
 /// 
-/// Sprint 35: Full DOP conversion complete
 
 pub mod camera_data;
 pub mod camera_operations;
