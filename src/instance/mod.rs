@@ -3,8 +3,6 @@
 /// Provides unique identification and metadata storage for all game entities.
 /// Every item, block, entity can have a unique UUID with associated metadata.
 /// Purely data-oriented - no instance "objects", just tables of data.
-///
-/// Part of Sprint 30: Instance & Metadata System
 
 // Data structures
 pub mod instance_data;

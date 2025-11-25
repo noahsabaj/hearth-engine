@@ -3,7 +3,7 @@
 /// Efficient querying of instances by various criteria.
 /// Uses bitsets and indices for fast filtering.
 /// Supports complex queries with minimal allocations.
-use crate::instance::{InstanceManagerData, InstanceId, InstanceType, MetadataStore, MetadataValue};
+use crate::instance::{InstanceData, InstanceManagerData, InstanceId, InstanceType, MetadataStore, MetadataValue};
 use bit_vec::BitVec;
 
 /// Query filter conditions
