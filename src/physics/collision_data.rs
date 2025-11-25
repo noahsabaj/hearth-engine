@@ -35,7 +35,7 @@ pub struct ContactPair {
 impl ContactPair {
     pub fn new(a: EntityId, b: EntityId) -> Self {
         // Always store smaller ID first for consistency
-        if a.0 < b.0 {
+        if a < b {
             Self {
                 entity_a: a,
                 entity_b: b,

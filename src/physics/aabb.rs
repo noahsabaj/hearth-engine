@@ -1,6 +1,5 @@
 /// Data-Oriented Axis-Aligned Bounding Box System
 /// 
-/// Sprint 37: Converted from OOP to pure functions operating on AABB data.
 /// Pure functions for collision detection - no methods, just data transformations.
 
 use cgmath::{Vector3, Point3};
