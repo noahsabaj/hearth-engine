@@ -10,7 +10,7 @@
 /// 4. Providing loose coupling through events
 /// 5. Handling cross-system synchronization
 use crate::error::{EngineError, EngineResult};
-use crate::thread_pool::{GpuWorkloadCategory, GpuThreadPoolData, submit_gpu_command_task};
+use crate::thread_pool::{GpuWorkloadCategory, GpuThreadPoolData, ThreadPoolManager, submit_gpu_command_task};
 use parking_lot::{Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet, VecDeque};
@@ -41,6 +41,18 @@ pub enum SystemPriority {
     High = 1,     // Should run most frames
     Normal = 2,   // Can skip frames if needed
     Low = 3,      // Can run at reduced frequency
+}
+
+/// Thread pool category
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PoolCategory {
+    WorldGeneration,
+    Physics,
+    MeshBuilding,
+    Lighting,
+    Network,
+    FileIO,
+    Compute,
 }
 
 /// System state
@@ -395,9 +407,16 @@ impl SystemCoordinator {
         // Execute on appropriate thread pool
         let pool_category = self.get_pool_category(system_id);
 
+        // Convert PoolCategory to GpuWorkloadCategory
+        let gpu_category = match pool_category {
+            PoolCategory::Physics => crate::thread_pool::GpuWorkloadCategory::Physics,
+            PoolCategory::MeshBuilding => crate::thread_pool::GpuWorkloadCategory::Rendering,
+            _ => crate::thread_pool::GpuWorkloadCategory::Compute,
+        };
+
         // For now, this is a placeholder - actual system execution will be
         // handled by the specific system implementations
-        ThreadPoolManager::global().execute(pool_category, || {
+        ThreadPoolManager::global().execute(gpu_category, || {
             // System-specific execution logic would go here
             std::thread::sleep(Duration::from_millis(1)); // Placeholder
         });

@@ -4,7 +4,7 @@
 /// Handles resource consumption and output generation.
 use crate::instance::InstanceId;
 use crate::process::{
-    ActualOutput, ProcessData, ProcessId, ProcessStatus, ProcessType, StateMachine,
+    ActualOutput, ProcessData, ProcessId, ProcessStatus, ProcessType, StageValidator, StateMachine,
     TransformStage, TransitionAction, ValidationContext,
 };
 use std::collections::HashMap;
@@ -104,7 +104,7 @@ impl ProcessExecutor {
                         // Generate stage outputs
                         let outputs = StageValidator::calculate_outputs(
                             current_stage,
-                            data.quality[index],
+                            data.quality[index] as u8 as f32 / 4.0, // Convert QualityLevel to f32 (0.0-1.0)
                             &mut self.rng,
                         );
 
@@ -196,7 +196,7 @@ impl ProcessExecutor {
                         ActualOutput {
                             output_type: crate::process::OutputType::Item(resource_id),
                             quantity: amount,
-                            quality: data.quality[index],
+                            quality: data.quality[index] as u8 as f32 / 4.0, // Convert QualityLevel to f32
                         },
                     ));
                 }
@@ -243,8 +243,9 @@ impl ProcessExecutor {
 
     /// Check if current stage is complete
     fn is_stage_complete(&self, state_machine: &StateMachine, stage: &TransformStage) -> bool {
-        let stage_duration = stage.duration.to_ticks();
-        state_machine.state_time() >= stage_duration
+        // Duration is in seconds (f32), convert to ticks (assuming 20 ticks/second)
+        let stage_duration_ticks = (stage.duration * 20.0) as u64;
+        state_machine.state_time() >= stage_duration_ticks
     }
 
     /// Update validation context for a player

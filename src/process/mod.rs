@@ -8,10 +8,10 @@ pub mod process_control;
 /// Generic time-based transformation framework for any gameplay system.
 /// Can handle crafting, building, growth, training, or any multi-stage process.
 /// Purely data-oriented - no process "objects", just tables of data.
-///
-/// Part of Sprint 31: Process & Transform System
+
 pub mod process_data;
 pub mod process_executor;
+pub mod stage_validator;
 pub mod state_machine;
 pub mod system_coordinator;
 pub mod transform_stage_data;
@@ -25,6 +25,7 @@ pub use parallel_processor_operations::{create_parallel_processor_data, submit_p
 pub use process_control::{InterruptReason, ProcessControl};
 pub use process_data::{ProcessData, ProcessId, ProcessStatus, ProcessType};
 pub use process_executor::{ExecutionResult, ProcessExecutor};
+pub use stage_validator::StageValidator;
 pub use state_machine::{ProcessState, StateMachine, StateTransition, TransitionAction};
 pub use transform_stage_data::{
     ActualOutput, OutputType, StageOutput, StageRequirement, TransformStage,
@@ -143,7 +144,8 @@ impl ProcessManager {
             transform_stages: Vec::with_capacity(MAX_PROCESSES),
             visuals: Vec::with_capacity(MAX_PROCESSES),
             executor: ProcessExecutor::new(),
-            parallel_data: create_parallel_processor_data()?,
+            parallel_data: create_parallel_processor_data()
+                .map_err(|e| crate::error::EngineError::InitializationError(e))?,
             gpu_thread_pool: crate::thread_pool::create_gpu_thread_pool_data(
                 crate::thread_pool::GpuThreadPoolConfig::default()
             ).map_err(|e| crate::error::EngineError::InitializationError(e))?,
@@ -181,7 +183,7 @@ impl ProcessManager {
         // Use parallel processor for batch updates
         let batch = ProcessBatch {
             indices: (0..self.processes.len()).collect(),
-            delta_ticks,
+            delta_ticks: vec![delta_ticks as f32], // Convert u64 to Vec<f32>
         };
 
         submit_process_batch_to_gpu(
