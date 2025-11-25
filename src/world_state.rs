@@ -2,7 +2,6 @@ use crate::gpu::buffer_layouts::ChunkMetadata;
 use bytemuck::{Pod, Zeroable};
 /// Pure Buffer-Based World State
 ///
-/// Sprint 35: The final architecture - all game state as pure data buffers.
 /// No objects, no methods, just data transformations and GPU buffers.
 ///
 /// This is the culmination of the data-oriented journey:
@@ -19,7 +18,6 @@ pub struct WorldState {
     pub device: Arc<Device>,
 
     /// === Voxel Data ===
-    /// Main world buffer from Sprint 21
     pub world_buffer: Arc<Buffer>,
     pub chunk_metadata: Arc<Buffer>,
 

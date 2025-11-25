@@ -121,6 +121,7 @@ pub enum EngineError {
     },
 
     // System Errors
+    InitializationError(String),
     IoError {
         path: String,
         error: String,
@@ -275,6 +276,7 @@ impl fmt::Display for EngineError {
             } => write!(f, "Invalid config: {} = {} ({})", field, value, reason),
             EngineError::MissingConfig { field } => write!(f, "Missing required config: {}", field),
 
+            EngineError::InitializationError(msg) => write!(f, "Initialization error: {}", msg),
             EngineError::IoError { path, error } => write!(f, "IO error for {}: {}", path, error),
             EngineError::Utf8Error { context } => write!(f, "UTF-8 error in {}", context),
             EngineError::ParseError {
@@ -394,6 +396,10 @@ impl From<crate::persistence::PersistenceError> for EngineError {
     fn from(err: crate::persistence::PersistenceError) -> Self {
         use crate::persistence::PersistenceError;
         match err {
+            PersistenceError::SaveFailed(e) => EngineError::SaveFailed {
+                path: String::new(),
+                error: e,
+            },
             PersistenceError::IoError(e) => EngineError::IoError {
                 path: String::new(),
                 error: e.to_string(),
@@ -410,7 +416,10 @@ impl From<crate::persistence::PersistenceError> for EngineError {
                 message: format!("Compression error: {}", e),
             },
             PersistenceError::VersionMismatch { expected, found } => {
-                EngineError::VersionMismatch { expected, found }
+                EngineError::VersionMismatch {
+                    expected: expected.parse().unwrap_or(0),
+                    found: found.parse().unwrap_or(0),
+                }
             }
             PersistenceError::CorruptedData(e) => EngineError::CorruptedData { reason: e },
             PersistenceError::MigrationError(e) => EngineError::Internal {

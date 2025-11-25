@@ -16,7 +16,7 @@
 pub mod constants;
 
 // Core engine modules
-pub mod dop_integration_example;
+// pub mod dop_integration_example; // TODO: Create example when needed
 pub mod engine_buffers;
 pub mod error;
 pub mod panic_handler;
@@ -24,7 +24,8 @@ pub mod panic_handler;
 // Export DOP types and functions
 pub use engine_buffers::{
     EngineBuffers, SharedEngineBuffers, create_engine_buffers, create_shared_buffers,
-    WorldBuffers, RenderBuffers, PhysicsBuffers, NetworkBuffers, InputBuffers, AudioBuffers, GameBuffers,
+    WorldBuffers, RenderBuffers, PhysicsBuffers, NetworkBuffers, InputBuffers,
+    ParticleBuffers, MetricsBuffers,
 };
 
 // Essential systems
@@ -65,18 +66,20 @@ use winit::event_loop::{EventLoop, EventLoopBuilder};
 
 pub use camera::{CameraData, CameraUniform};
 pub use error::{EngineError, EngineResult, ErrorContext, OptionExt};
-pub use game::{GameContext, GameData};
+pub use game::{GameContextDOP, GameData};
 pub use input::KeyCode;
 pub use physics::AABB;
 pub use renderer::Renderer;
 // === Core World Types ===
 // Export from world - GPU-first architecture with CPU fallback
 pub use world::core::{
-    cast_ray, BlockFace, BlockId, BlockRegistry, ChunkPos, PhysicsProperties, Ray,
+    BlockFace, BlockId, BlockRegistry, ChunkPos, PhysicsProperties, Ray,
     RaycastHit, RenderData, VoxelPos,
 };
+// cast_ray removed - use world::raycast (DOP) instead
 pub use world::generation::WorldGenerator;
-pub use world::interfaces::{ChunkData, WorldInterface};
+pub use world::interfaces::ChunkData;
+// WorldInterface is deprecated - use world_operations module functions instead
 pub use world::management::UnifiedWorldManager as World;
 // ChunkSoA removed - GPU-first architecture doesn't need CPU chunk storage
 
